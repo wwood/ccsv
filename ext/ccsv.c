@@ -3,7 +3,6 @@
 static VALUE rb_cC;
 
 static VALUE foreach(VALUE self, VALUE filename) {
-
   FILE *file = fopen(StringValueCStr(filename), "r");
   if (file == NULL)
     rb_raise(rb_eRuntimeError, "File not found");
@@ -14,7 +13,7 @@ static VALUE foreach(VALUE self, VALUE filename) {
   int idx;
 
   VALUE ary;
-  
+
   while (getline(&line, &len, file) != -1) {
     ary = rb_ary_new();
     token = strtok(line, DELIMITERS);
@@ -41,9 +40,49 @@ static VALUE foreach(VALUE self, VALUE filename) {
   return Qnil;
 }
 
+static VALUE foreach_tab_separated(VALUE self, VALUE filename) {
+  FILE *file = fopen(StringValueCStr(filename), "r");
+  if (file == NULL)
+    rb_raise(rb_eRuntimeError, "File not found");
+
+  char *line = NULL;
+  size_t len = 0;
+  char *token;
+  int idx;
+
+  VALUE ary;
+
+  while (getline(&line, &len, file) != -1) {
+    ary = rb_ary_new();
+    token = strtok(line, TAB_DELIMITERS);
+    idx = 0;
+
+    while (token != NULL) {
+      rb_ary_store(ary, idx, rb_str_new(token, strlen(token)));
+      idx ++;
+      token = strtok(NULL, TAB_DELIMITERS);
+    }
+
+    /* OBJ_FREEZE(ary); */
+    rb_yield(ary);
+    /* FL_UNSET((ary), FL_FREEZE); */
+
+    /* for(idx = 0; idx < RARRAY_LEN(ary); idx ++) {
+      rb_ary_store(ary, idx, Qnil);
+    } */
+
+  }
+
+  fclose(file);
+
+  return Qnil;
+}
+
+
 void
 Init_ccsv()
 {
   rb_cC = rb_define_class("Ccsv", rb_cObject);
   rb_define_singleton_method(rb_cC, "foreach", foreach, 1);
+  rb_define_singleton_method(rb_cC, "foreach_tab_separated", foreach_tab_separated, 1);
 }

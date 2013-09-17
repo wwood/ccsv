@@ -47,6 +47,19 @@ class TestCcsv < Test::Unit::TestCase
     assert_equal csv, ccsv
   end
 
+  def test_tabular_separated_accuracy
+    ccsv = []
+    file = @dir + "data_small.tab"
+    Ccsv.foreach_tab_separated(file) do |values|
+      ccsv << values.dup
+    end
+    csv = []
+    CSV.foreach(file, :col_sep => "\t") do |values|
+      csv << values
+    end
+    assert_equal csv, ccsv
+  end
+
   def test_speed
     Benchmark.bm(5) do |x|
       [Ccsv, CSV].each do |klass| # CSVScan, LightCsv,

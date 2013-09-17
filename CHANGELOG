@@ -1,3 +1,5 @@
+v0.1.2.1.wwood Introduce tab-separated values parsing function (wwood)
+
 v0.1.2. Allow lines of any length (crossman).
 
 v0.1.1 Remove env.h and node.h for compilation for ruby 1.9.3 (pronix).
